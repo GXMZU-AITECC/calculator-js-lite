@@ -228,6 +228,34 @@ function inputSqrt() {
   show();
 }
 
+/** 百分号键：加减时按左操作数的百分之几计算，乘除时直接转成小数。 */
+function inputPercent() {
+  if (isError()) {
+    return;
+  }
+
+  const value = Number(text);
+  const isPercentOfLeft = pendingOp === '+' || pendingOp === '−';
+  let result;
+
+  if (acc !== null && isPercentOfLeft) {
+    result = acc * value / 100;
+  } else {
+    result = value / 100;
+  }
+
+  text = formatResult(result);
+
+  if (text === ERROR_TEXT) {
+    clearState();
+    showSub('');
+  }
+
+  waiting = false;
+  show();
+}
+
+
 /** 平方键：对当前显示的数求平方。 */
 function inputSquare() {
   if (isError()) {
@@ -299,7 +327,7 @@ const LAYOUT = [
   ['1', 'digit'], ['2', 'digit'], ['3', 'digit'], ['×', 'operator'],
   ['0', 'digit'], ['−', 'operator'], ['+', 'operator'], ['=', 'equals'],
   ['.', 'decimal'], ['⌫', 'backspace'], ['CE', 'clearEntry'], ['√', 'sqrt'],
-  ['x²', 'square'],
+  ['x²', 'square'],['%', 'percent'],
   ['1/x', 'reciprocal'],
   ['(', 'lparen'], [')', 'rparen'], // #43 新增：末行整行放左右括号
   ['复制', 'copy'],
@@ -315,6 +343,7 @@ const KEY_CLASS = {
   clearEntry: 'key--danger',
   sqrt: 'key--action',
   square: 'key--action',
+  percent: 'key--action',
   reciprocal: 'key--action',
   lparen: 'key--action', // #43 新增
   rparen: 'key--action',
@@ -343,6 +372,8 @@ LAYOUT.forEach(([label, kind]) => {
       inputSqrt();
     } else if (kind === 'square') {
       inputSquare();
+    } else if (kind === 'percent') {
+      inputPercent(); 
     } else if (kind === 'reciprocal') {
       inputReciprocal();
     } else if (kind === 'copy') {
